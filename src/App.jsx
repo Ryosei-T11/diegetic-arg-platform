@@ -41,7 +41,7 @@ const INITIAL_EMAILS = [
   }
 ];
 
-// Database Sistem Berkas Lokas Simulasi (Virtual File System)
+// Database Sistem Berkas Lokal Simulasi (Virtual File System)
 const FILE_SYSTEM = {
   'root': {
     id: 'root',
@@ -92,6 +92,31 @@ const FILE_SYSTEM = {
     imgType: 'rontgen'
   }
 };
+
+// Database Hasil Pencarian Fiktif Dinamis (AetherSearch Index Database)
+const SEARCH_DATABASE = [
+  {
+    id: 'search-1',
+    title: '🔴 INVESTIGASI: Kebocoran Dokumen Uji Klinis Ilegal Sektor S2 Apex Corp',
+    url: 'konspirasi-forum.id',
+    snippet: 'Beberapa informan independen membocorkan manipulasi data klinis bersandi "Genesis" yang diduga memicu mutasi genetik berbahaya. Whistleblower Andra Kirana mengklaim memiliki bukti forensik blueprint bypass di forum NetWatchers...',
+    keywords: ['apex', 'apex corp', 'skandal', 'genetika', 'genesis', 'uji coba', 'sektor s2', 'ilegal']
+  },
+  {
+    id: 'search-2',
+    title: '👤 Profil Dr. Jonathan Vance: Kebangkitan Raksasa Biomedis & Rumor Sandi Database',
+    url: 'andra-journal.net',
+    snippet: 'Jonathan Vance (CEO Apex Corp) dikenal sebagai figur penyelamat medis. Namun, peretas siber mengklaim menemukan tanda tangan digital MD5 hash rahasia miliknya yang mengunci gerbang administratif utama: eb823528b17b6ab86ba11b6b55979c53...',
+    keywords: ['jonathan', 'vance', 'rumor', 'ceo', 'hash', 'sandi', 'database', 'administrator']
+  },
+  {
+    id: 'search-3',
+    title: '🔍 Misteri Keberadaan Andra Kirana: Hilang Secara Tiba-tiba Pasca Kebocoran Data',
+    url: 'konspirasi-forum.id',
+    snippet: 'Pihak berwajib terkesan mengulur waktu untuk mengusut kasus hilangnya Andra Kirana. Sahabat terdekatnya menyatakan bahwa Andra mengunci berkas investigasinya menggunakan teka-teki nama hobi dan hari jadi anjing peliharaannya...',
+    keywords: ['andra', 'kirana', 'hilang', 'penculikan', 'anjing', 'riko']
+  }
+];
 
 // =========================================================================
 // 2. AUDIO WEB API RETRO SYNTHESIZER
@@ -628,7 +653,129 @@ function PenampilGambar({ imgType, onClose }) {
   );
 }
 
-// G. INTERNET SIMULASI (PORTAL BROWSER)
+// G. INTERNET SIMULASI: MESIN PENCARI FIKTIF "AETHERSEARCH"
+function AetherSearch({ onNavigate, playSound }) {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [searched, setSearched] = useState(false);
+
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    if (playSound) playSound('click');
+
+    const cleanQuery = query.toLowerCase().trim();
+    if (!cleanQuery) {
+      setResults([]);
+      setSearched(false);
+      return;
+    }
+
+    // Filter database artikel pencarian berdasarkan kecocokan kata kunci fiktif
+    const filtered = SEARCH_DATABASE.filter(item => {
+      return item.keywords.some(keyword => cleanQuery.includes(keyword)) ||
+             item.title.toLowerCase().includes(cleanQuery) ||
+             item.snippet.toLowerCase().includes(cleanQuery);
+    });
+
+    setResults(filtered);
+    setSearched(true);
+  };
+
+  return (
+    <div className="space-y-6 max-w-xl mx-auto font-mono text-xs text-slate-300">
+      {/* Brand Header */}
+      <div className="text-center space-y-2 py-4">
+        <h1 className="text-3xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">
+          ⚡ AETHER_SEARCH
+        </h1>
+        <p className="text-[10px] text-slate-500">Pusat Indeksasi Kueri & DNS Publik Terenkripsi Jaringan AetherOS</p>
+      </div>
+
+      {/* Input Search Form */}
+      <form onSubmit={handleSearch} className="flex gap-2">
+        <input 
+          type="text"
+          placeholder="Ketik kata kunci pencarian (misal: 'Apex Corp', 'Vance', 'Andra Kirana')..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500/60"
+        />
+        <button 
+          type="submit"
+          className="bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-800/40 px-5 rounded-lg font-bold transition-all hover:scale-105"
+        >
+          Cari
+        </button>
+      </form>
+
+      {/* Trending Topics (Awal) */}
+      {!searched && (
+        <div className="p-4 bg-slate-900/40 rounded-lg border border-slate-800/60 text-center space-y-2">
+          <span className="text-slate-500 text-[9px] uppercase font-bold block">Pencarian Terpopuler Saat Ini:</span>
+          <div className="flex justify-center gap-2 flex-wrap">
+            {['Apex Corp skandal genetika', 'Jonathan Vance rumor', 'Andra Kirana hilang'].map((kw) => (
+              <button 
+                key={kw}
+                onClick={() => {
+                  setQuery(kw);
+                  // Trigger search manual
+                  setTimeout(() => {
+                    const cleanQuery = kw.toLowerCase().trim();
+                    const filtered = SEARCH_DATABASE.filter(item => {
+                      return item.keywords.some(keyword => cleanQuery.includes(keyword)) ||
+                             item.title.toLowerCase().includes(cleanQuery) ||
+                             item.snippet.toLowerCase().includes(cleanQuery);
+                    });
+                    setResults(filtered);
+                    setSearched(true);
+                  }, 50);
+                }}
+                className="px-2.5 py-1 bg-slate-950 border border-slate-800 rounded text-[10px] text-emerald-400 hover:border-emerald-700 hover:bg-slate-900"
+              >
+                "{kw}"
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Hasil Kueri */}
+      {searched && (
+        <div className="space-y-4">
+          <div className="text-[10px] text-slate-500 border-b border-slate-900 pb-2 flex justify-between">
+            <span>HASIL KUERI UNTUK: "{query}"</span>
+            <span>Ditemukan: {results.length} artikel</span>
+          </div>
+
+          {results.length > 0 ? (
+            <div className="space-y-4">
+              {results.map((item) => (
+                <div key={item.id} className="p-4 bg-slate-900/50 rounded-lg border border-slate-800/80 hover:border-emerald-900/40 transition-colors space-y-2">
+                  <span 
+                    onClick={() => onNavigate(item.url)}
+                    className="text-sm font-bold text-emerald-400 hover:underline cursor-pointer block"
+                  >
+                    {item.title}
+                  </span>
+                  <span className="text-[10px] text-slate-500 block">HTTP://{item.url}</span>
+                  <p className="text-slate-300 leading-relaxed text-[11px] font-sans">{item.snippet}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 space-y-2">
+              <span className="text-rose-500 text-2xl block">🕵️‍♂️</span>
+              <p className="text-slate-400 font-bold">Kueri Tidak Mengembalikan Data</p>
+              <p className="text-slate-500 text-[10px]">Tips: Gunakan kueri fiktif yang umum di dunia AetherOS, seperti "Apex", "Vance", "Andra", atau "Genetika".</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// H. INTERNET SIMULASI: SITUS BLOG KORBAN (andra-journal.net)
 function KorbanBlog({ gameState, onUnlockJournal, playSound, onNavigate }) {
   const [blogPassInput, setBlogPassInput] = useState('');
 
@@ -717,6 +864,7 @@ function KorbanBlog({ gameState, onUnlockJournal, playSound, onNavigate }) {
   );
 }
 
+// I. INTERNET SIMULASI: FORUM (konspirasi-forum.id)
 function ForumHome({ playSound, onNavigate }) {
   const [forumComment, setForumComment] = useState('');
   const [forumThreads, setForumThreads] = useState([
@@ -820,6 +968,7 @@ function ForumHome({ playSound, onNavigate }) {
   );
 }
 
+// J. INTERNET SIMULASI: SITUS MEGACORP (apex-corp.org)
 function MegaCorpSitus({ url, gameState, onHackMegaCorp, playSound, onNavigate, onOpenWindow }) {
   const [megaCorpPassword, setMegaCorpPassword] = useState('');
   const [megaCorpError, setMegaCorpError] = useState('');
@@ -944,6 +1093,7 @@ function MegaCorpSitus({ url, gameState, onHackMegaCorp, playSound, onNavigate, 
   );
 }
 
+// K. FRAME UTAMA BROWSER (MENGATUR NAVIGASI & ROUTING INTERNET)
 function Browser({ 
   url, 
   onNavigate, 
@@ -988,7 +1138,14 @@ function Browser({
           />
         </div>
         
+        {/* Bookmarks bar */}
         <div className="flex gap-1.5 font-mono text-[10px]">
+          <button 
+            onClick={() => onNavigate('aethersearch.net')}
+            className={`px-2.5 py-1 rounded-md border ${url === 'aethersearch.net' ? 'bg-emerald-950 text-emerald-400 border-emerald-900/60' : 'bg-slate-900 text-slate-400'}`}
+          >
+            🔍 Search
+          </button>
           <button 
             onClick={() => onNavigate('andra-journal.net')}
             className={`px-2.5 py-1 rounded-md border ${url === 'andra-journal.net' ? 'bg-emerald-950 text-emerald-400 border-emerald-900/60' : 'bg-slate-900 text-slate-400'}`}
@@ -1012,6 +1169,13 @@ function Browser({
 
       {/* VIEWPORT AREA */}
       <div className="flex-1 overflow-auto bg-slate-950 p-6 select-text">
+        {url === 'aethersearch.net' && (
+          <AetherSearch 
+            onNavigate={onNavigate} 
+            playSound={playSound} 
+          />
+        )}
+
         {url === 'andra-journal.net' && (
           <KorbanBlog 
             gameState={gameState} 
@@ -1039,7 +1203,8 @@ function Browser({
           />
         )}
 
-        {url !== 'andra-journal.net' && url !== 'konspirasi-forum.id' && !url.startsWith('apex-corp.org') && (
+        {/* DNS NXDOMAIN Error */}
+        {url !== 'aethersearch.net' && url !== 'andra-journal.net' && url !== 'konspirasi-forum.id' && !url.startsWith('apex-corp.org') && (
           <div className="text-center py-12 space-y-3 font-mono">
             <span className="text-rose-500 text-3xl block">🚫</span>
             <h2 className="text-sm font-bold text-slate-100">Situs Tidak Ditemukan</h2>
@@ -1094,16 +1259,16 @@ export default function App() {
   const [terminalInput, setTerminalInput] = useState('');
   const terminalBottomRef = useRef(null);
 
-  // Browser Navigation State
-  const [browserUrl, setBrowserUrl] = useState('andra-journal.net');
-  const [browserHistory, setBrowserHistory] = useState(['andra-journal.net']);
+  // Browser Navigation State (Default dialihkan ke Mesin Pencari Fiktif AetherSearch)
+  const [browserUrl, setBrowserUrl] = useState('aethersearch.net');
+  const [browserHistory, setBrowserHistory] = useState(['aethersearch.net']);
   const [browserHistoryIndex, setBrowserHistoryIndex] = useState(0);
 
-  // Crypto Solver Inputs
+  // Crypto Solver Inputs (Base64 sengaja dikosongkan agar dicari manual lewat search engine)
   const [caesarInput, setCaesarInput] = useState('XGTMGF_XGTSKTM_RSTF');
   const [caesarShift, setCaesarShift] = useState(7);
   const [caesarOutput, setCaesarOutput] = useState('');
-  const [base64Input, setBase64Input] = useState('QVBFWF9HRU5FU0lTXzIwMjY=');
+  const [base64Input, setBase64Input] = useState('');
   const [base64Output, setBase64Output] = useState('');
 
   // Dragging Windows Logic States
@@ -1424,7 +1589,7 @@ export default function App() {
       setEmails(INITIAL_EMAILS);
       setWindows([{ id: 'readme', title: 'README.txt', x: 60, y: 80, w: 520, h: 390, zIndex: 10, minimized: false, content: 'readme' }]);
       setActiveWindow('readme');
-      setBrowserUrl('andra-journal.net');
+      setBrowserUrl('aethersearch.net');
     }
   };
 
@@ -1543,9 +1708,10 @@ export default function App() {
                 <h3 className="text-emerald-400 font-bold border-b border-slate-800 pb-1">PETUNJUK ANALISIS FORENSIK:</h3>
                 <ol className="list-decimal pl-4 space-y-2 leading-relaxed text-slate-300">
                   <li>Buka <span className="text-purple-400 font-bold">SurelBox</span> untuk mengidentifikasi detail masalah darurat.</li>
-                  <li>Buka <span className="text-yellow-400 font-bold">Explorer.exe</span>, lalu buka folder `Dokumen Pribadi` untuk menemukan file terenkripsi `jurnal_andra.txt`.</li>
-                  <li>Gunakan <span className="text-rose-400 font-bold">SolverSandi</span> (atau terminal via `decrypt`) untuk memecahkan sandi Caesar dengan pergeseran tanggal jadi peliharaan Riko yang tercantum di <span className="text-blue-400 underline cursor-pointer" onClick={() => openWindow('browser', 'Aether Web Browser', 860, 560)}>andra-journal.net</span>.</li>
-                  <li>Masukkan teks terang ke area draf terkunci di blog untuk membuka petunjuk server administrator Apex Corp!</li>
+                  <li>Buka <span className="text-blue-400 font-bold">Browser.sys</span> dan gunakan mesin pencari **AetherSearch** untuk meneliti data korban secara mendalam.</li>
+                  <li>Ketik kata kunci forensik seperti <code className="text-amber-400 font-bold">"Andra Kirana"</code> atau <code className="text-amber-400 font-bold">"Apex Corp"</code> di kolom pencarian untuk menemukan koordinat lokasi dan tautan blog pribadinya.</li>
+                  <li>Gunakan <span className="text-rose-400 font-bold">SolverSandi</span> (atau terminal via `decrypt`) untuk memecahkan sandi Caesar dengan pergeseran tanggal jadi peliharaan Riko yang tercantum di <span className="text-emerald-400 underline cursor-pointer" onClick={() => openWindow('browser', 'Aether Web Browser', 860, 560)}>andra-journal.net</span>.</li>
+                  <li>Masukkan hasil dekripsi ke draf blog korban untuk membongkar kunci autentikasi server administrator milik Apex Corp!</li>
                 </ol>
               </div>
             )}
